@@ -24,6 +24,7 @@
 #include <epan/packet.h>
 
 #include "packet-isi.h"
+#include "isi-network.h"
 #include "isi-simauth.h"
 #include "isi-gps.h"
 
@@ -86,6 +87,7 @@ void proto_reg_handoff_isi(void) {
 
 		/* handoff resource dissectors */
 		proto_reg_handoff_isi_sim_auth();
+		proto_reg_handoff_isi_network();
 		proto_reg_handoff_isi_gps();
 	}
 }
@@ -137,6 +139,7 @@ void proto_register_isi(void) {
 
 	/* register resource dissectors */
 	proto_register_isi_sim_auth();
+	proto_register_isi_network();
 	proto_register_isi_gps();
 }
 
