@@ -159,7 +159,7 @@ static void dissect_isi_sim_auth(tvbuff_t *tvb, packet_info *pinfo, proto_item *
 						col_set_str(pinfo->cinfo, COL_INFO, "get SIM startup protection status");
 						break;
 					default:
-						col_set_str(pinfo->cinfo, COL_INFO, "unknown SIM startup protection package");
+						col_set_str(pinfo->cinfo, COL_INFO, "unknown SIM startup protection packet");
 						break;
 				}
 				break;
@@ -266,12 +266,12 @@ static void dissect_isi_sim_auth(tvbuff_t *tvb, packet_info *pinfo, proto_item *
 						col_set_str(pinfo->cinfo, COL_INFO, "SIM Authentication status: initializing");
 						break;
 					default:
-						col_set_str(pinfo->cinfo, COL_INFO, "unknown SIM Authentication status response package");
+						col_set_str(pinfo->cinfo, COL_INFO, "unknown SIM Authentication status response packet");
 						break;
 				}
 				break;
 			default:
-				col_set_str(pinfo->cinfo, COL_INFO, "unknown SIM Authentication package");
+				col_set_str(pinfo->cinfo, COL_INFO, "unknown SIM Authentication packet");
 				break;
 		}
 	}

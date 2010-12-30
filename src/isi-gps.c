@@ -324,7 +324,7 @@ static void dissect_isi_gps(tvbuff_t *tvb, packet_info *pinfo, proto_item *isitr
 			case 0x89:
 			case 0x8a:
 			case 0x8b:
-				col_add_fstr(pinfo->cinfo, COL_INFO, "unknown A-GPS package (0x%02x)", cmd);
+				col_add_fstr(pinfo->cinfo, COL_INFO, "unknown A-GPS packet (0x%02x)", cmd);
 				break;
 			case 0x90: /* GPS Power Request */
 				col_set_str(pinfo->cinfo, COL_INFO, "GPS Power Request");
@@ -337,7 +337,7 @@ static void dissect_isi_gps(tvbuff_t *tvb, packet_info *pinfo, proto_item *isitr
 				dissect_isi_gps_data(tvb, pinfo, item, tree);
 				break;
 			default:
-				col_add_fstr(pinfo->cinfo, COL_INFO, "unknown GPS package (0x%02x)", cmd);
+				col_add_fstr(pinfo->cinfo, COL_INFO, "unknown GPS packet (0x%02x)", cmd);
 				break;
 		}
 	}
