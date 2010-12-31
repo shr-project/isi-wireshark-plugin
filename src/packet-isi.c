@@ -75,6 +75,7 @@ static guint32 hf_isi_id   = -1;
 /* Subtree handles: set by register_subtree_array */
 static guint32 ett_isi = -1;
 guint32 ett_isi_msg = -1;
+guint32 ett_isi_network_gsm_band_info = -1;
 
 /* Handler registration */
 void proto_reg_handoff_isi(void) {
@@ -125,7 +126,8 @@ void proto_register_isi(void) {
 
 	static gint *ett[] = {
 		&ett_isi,
-		&ett_isi_msg
+		&ett_isi_msg,
+		&ett_isi_network_gsm_band_info
 	};
 
  	proto_isi = proto_register_protocol("Intelligent Service Interface", "ISI", "isi");

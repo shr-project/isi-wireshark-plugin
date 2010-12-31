@@ -6,6 +6,7 @@ extern int proto_isi;
 
 /* Subtree variables */
 extern guint32 ett_isi_msg;
+extern guint32 ett_isi_network_gsm_band_info;
 
 
 #endif
