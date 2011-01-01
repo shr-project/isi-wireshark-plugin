@@ -25,6 +25,7 @@
 
 #include "packet-isi.h"
 #include "isi-network.h"
+#include "isi-sim.h"
 #include "isi-simauth.h"
 #include "isi-gps.h"
 
@@ -88,6 +89,7 @@ void proto_reg_handoff_isi(void) {
 
 		/* handoff resource dissectors */
 		proto_reg_handoff_isi_sim_auth();
+		proto_reg_handoff_isi_sim();
 		proto_reg_handoff_isi_network();
 		proto_reg_handoff_isi_gps();
 	}
@@ -140,6 +142,7 @@ void proto_register_isi(void) {
 	isi_resource_dissector_table = register_dissector_table("isi.resource", "ISI resource", FT_UINT8, BASE_HEX);
 
 	/* register resource dissectors */
+	proto_register_isi_sim();
 	proto_register_isi_sim_auth();
 	proto_register_isi_network();
 	proto_register_isi_gps();
