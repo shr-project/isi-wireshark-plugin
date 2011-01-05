@@ -1,6 +1,7 @@
 /* packet-isi.c
  * Dissector for ISI protocol
  * Copyright 2010, Sebastian Reichel <sre@ring0.de>
+ * Copyright 2010, Tyson Key <tyson.key@gmail.com>
  * 
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -61,8 +62,10 @@ static const value_string hf_isi_resource[] = {
 	{0x15, "MTC"},
 	{0x1B, "Phone Information"},
 	{0x31, "GPRS"},
+	{0x32, "General Stack Server"}, /* Mysterious type 50 - I don't know what this is*/
 	{0x54, "GPS"},
-	{0x62, "EPOC Info"}
+	{0x62, "EPOC Info"},
+	{0xB4, "Radio Settings"} /* Mysterious type 180? */
 };
 
 static guint32 hf_isi_rdev = -1;
@@ -78,11 +81,26 @@ static guint32 ett_isi = -1;
 guint32 ett_isi_msg = -1;
 guint32 ett_isi_network_gsm_band_info = -1;
 
+#ifdef ISI_USB
+/* Experimental approach based upon the one used for PPP*/
+static gboolean dissect_usb_isi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+	tvbuff_t *next_tvb = NULL;
+
+	if(tvb_get_guint8(tvb, 0) == 0x1B) {
+		next_tvb = tvb_new_subset_remaining(tvb, 1);
+		dissect_isi(next_tvb, pinfo, tree);
+	}
+	else
+		return (FALSE);
+	return (TRUE);
+}
+#endif
+
 /* Handler registration */
 void proto_reg_handoff_isi(void) {
 	static gboolean initialized=FALSE;
 
-	if (!initialized) {
+	if(!initialized) {
 		data_handle = find_dissector("data");
 		isi_handle = create_dissector_handle(dissect_isi, proto_isi);
 		dissector_add("sll.ltype", ISI_LTYPE, isi_handle);
@@ -92,6 +110,12 @@ void proto_reg_handoff_isi(void) {
 		proto_reg_handoff_isi_sim();
 		proto_reg_handoff_isi_network();
 		proto_reg_handoff_isi_gps();
+		proto_reg_handoff_isi_ss();
+		proto_reg_handoff_isi_gss();
+
+#ifdef ISI_USB
+		heur_dissector_add("usb.bulk", dissect_usb_isi, proto_isi);
+#endif
 	}
 }
 
@@ -146,6 +170,8 @@ void proto_register_isi(void) {
 	proto_register_isi_sim_auth();
 	proto_register_isi_network();
 	proto_register_isi_gps();
+	proto_register_isi_ss();
+	proto_register_isi_gss();
 }
 
 /* The dissector itself */
