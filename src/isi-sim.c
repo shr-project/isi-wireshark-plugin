@@ -136,6 +136,17 @@ static const value_string isi_sim_cause[] = {
 	{0x4D, "SIM_SERV_FILE_NOT_AVAILABLE"}
 };
 
+static const value_string isi_sim_hlpmn_countries[] = {
+	{0x32F4, "United Kingdom (234)"}
+};
+
+static const value_string isi_sim_hlpmn_operators[] = {
+	{0x01, "O2 - UK (10)"},
+	{0x02, "3 UK (20)"},
+	{0x33, "Orange UK (33)"},
+};
+
+
 static dissector_handle_t isi_sim_handle;
 static void dissect_isi_sim(tvbuff_t *tvb, packet_info *pinfo, proto_item *tree);
 
@@ -143,6 +154,8 @@ static guint32 hf_isi_sim_message_id = -1;
 static guint32 hf_isi_sim_service_type = -1;
 static guint32 hf_isi_sim_cause = -1;
 static guint32 hf_isi_sim_secondary_cause = -1;
+static guint32 hf_isi_sim_hlpmn_countries = -1;
+static guint32 hf_isi_sim_hlpmn_operators = -1;
 
 void proto_reg_handoff_isi_sim(void) {
 	static gboolean initialized=FALSE;
@@ -155,14 +168,18 @@ void proto_reg_handoff_isi_sim(void) {
 
 void proto_register_isi_sim(void) {
 	static hf_register_info hf[] = {
-	  	{ &hf_isi_sim_message_id,
+		{ &hf_isi_sim_message_id,
 		  { "Message ID", "isi.sim.msg_id", FT_UINT8, BASE_HEX, isi_sim_message_id, 0x0, "Message ID", HFILL }},
 		  { &hf_isi_sim_service_type,
 		  { "Service Type", "isi.sim.service_type", FT_UINT8, BASE_HEX, isi_sim_service_type, 0x0, "Service Type", HFILL }},
 		  { &hf_isi_sim_cause,
 		  { "Cause", "isi.sim.cause", FT_UINT8, BASE_HEX, isi_sim_cause, 0x0, "Cause", HFILL }},
 		  { &hf_isi_sim_secondary_cause,
-		  { "Secondary Cause", "isi.sim.secondary_cause", FT_UINT8, BASE_HEX, isi_sim_cause, 0x0, "Secondary Cause", HFILL }}
+		  { "Secondary Cause", "isi.sim.secondary_cause", FT_UINT8, BASE_HEX, isi_sim_cause, 0x0, "Secondary Cause", HFILL }},
+		  { &hf_isi_sim_hlpmn_countries,
+		  { "Country", "isi.sim.hlpmn_country", FT_UINT16, BASE_HEX, isi_sim_hlpmn_countries, 0x0, "Country", HFILL }},
+		  { &hf_isi_sim_hlpmn_operators,
+		  { "Operator", "isi.sim.hlpmn_operator", FT_UINT8, BASE_HEX, isi_sim_hlpmn_operators, 0x0, "Operator", HFILL }}
 
 	};
 
@@ -199,8 +216,16 @@ static void dissect_isi_sim(tvbuff_t *tvb, packet_info *pinfo, proto_item *isitr
 
 			case 0x1A: /* SIM_NETWORK_INFO_RESP */
 				proto_tree_add_item(tree, hf_isi_sim_service_type, tvb, 1, 1, FALSE);
+				proto_tree_add_item(tree, hf_isi_sim_cause, tvb, 2, 1, FALSE);
+
 				code = tvb_get_guint8(tvb, 1);
 				switch(code) {
+					case 0x2F:
+						proto_tree_add_item(tree, hf_isi_sim_hlpmn_countries, tvb, 3, 2, FALSE);
+						proto_tree_add_item(tree, hf_isi_sim_hlpmn_operators, tvb, 5, 1, FALSE);
+				
+						col_set_str(pinfo->cinfo, COL_INFO, "Network Information Response: Home PLMN");
+						break;
 					default:
 						col_set_str(pinfo->cinfo, COL_INFO, "Network Information Response");
 						break;
@@ -228,7 +253,7 @@ static void dissect_isi_sim(tvbuff_t *tvb, packet_info *pinfo, proto_item *isitr
 				break;
 				
 			case 0x21: /* SIM_SERV_PROV_NAME_REQ */
-			  	proto_tree_add_item(tree, hf_isi_sim_service_type, tvb, 1, 1, FALSE);
+				proto_tree_add_item(tree, hf_isi_sim_service_type, tvb, 1, 1, FALSE);
 				code = tvb_get_guint8(tvb, 1);
 				switch(code) {
 					default:
@@ -328,8 +353,8 @@ static void dissect_isi_sim(tvbuff_t *tvb, packet_info *pinfo, proto_item *isitr
 				break;
 				
 			case 0xF0: /* SIM_COMMON_MESSAGE */
-			  	proto_tree_add_item(tree, hf_isi_sim_cause, tvb, 1, 1, FALSE);
-			  	proto_tree_add_item(tree, hf_isi_sim_secondary_cause, tvb, 2, 1, FALSE);
+				proto_tree_add_item(tree, hf_isi_sim_cause, tvb, 1, 1, FALSE);
+				proto_tree_add_item(tree, hf_isi_sim_secondary_cause, tvb, 2, 1, FALSE);
 				code = tvb_get_guint8(tvb, 1);
 				switch(code) {
 					case 0x00:
