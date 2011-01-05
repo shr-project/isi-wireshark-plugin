@@ -1,8 +1,7 @@
-CFLAGS+=-I/usr/include/wireshark -DHAVE_STDARG_H -DHAVE_CONFIG_H -g
-OBJECTS:=src/packet-isi.o src/plugin.o src/isi-sim.o src/isi-simauth.o src/isi-network.o src/isi-gps.o
+include config.mk
 
-PREFIX?=/usr
-PLUGINDIR?=lib/wireshark/libwireshark0/plugins
+CFLAGS+=-I${WIRESHARKDIR} -DHAVE_STDARG_H -DHAVE_CONFIG_H -g
+OBJECTS:=src/packet-isi.o src/plugin.o src/isi-sim.o src/isi-simauth.o src/isi-network.o src/isi-gps.o src/isi-ss.o src/isi-gss.o
 
 all: isi.so
 
@@ -20,4 +19,4 @@ clean:
 install: isi.so
 	install isi.so $(DESTDIR)${PREFIX}/${PLUGINDIR}
 
-.PHONEY: clean install
+.PHONEY: all clean install
