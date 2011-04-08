@@ -337,6 +337,7 @@ void proto_reg_handoff_isi(void) {
 		proto_reg_handoff_isi_mtc();
 		proto_reg_handoff_isi_nameservice();
 		proto_reg_handoff_isi_radiosettings();
+		proto_reg_handoff_isi_phoneinfo();
 
 #ifdef ISI_USB
 		heur_dissector_add("usb.bulk", dissect_usb_isi, proto_isi);
@@ -401,6 +402,7 @@ void proto_register_isi(void) {
 	proto_register_isi_mtc();
 	proto_register_isi_nameservice();
 	proto_register_isi_radiosettings();
+	proto_register_isi_phoneinfo();
 }
 
 /* The dissector itself */
