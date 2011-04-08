@@ -10,7 +10,8 @@ OBJECTS:=src/packet-isi.o \
 	src/isi-ss.o \
 	src/isi-gss.o \
 	src/isi-sms.o \
-	src/isi-mtc.o
+	src/isi-mtc.o \
+	src/isi-nameservice.o
 
 all: isi.so
 

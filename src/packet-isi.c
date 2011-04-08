@@ -335,6 +335,7 @@ void proto_reg_handoff_isi(void) {
 		proto_reg_handoff_isi_gss();
 		proto_reg_handoff_isi_sms();
 		proto_reg_handoff_isi_mtc();
+		proto_reg_handoff_isi_nameservice();
 
 #ifdef ISI_USB
 		heur_dissector_add("usb.bulk", dissect_usb_isi, proto_isi);
@@ -397,6 +398,7 @@ void proto_register_isi(void) {
 	proto_register_isi_gss();
 	proto_register_isi_sms();
 	proto_register_isi_mtc();
+	proto_register_isi_nameservice();
 }
 
 /* The dissector itself */
