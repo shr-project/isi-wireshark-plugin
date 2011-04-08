@@ -343,22 +343,183 @@ static void dissect_isi_network(tvbuff_t *tvb, packet_info *pinfo, proto_item *i
 		cmd = tvb_get_guint8(tvb, 0);
 
 		switch(cmd) {
-			case 0x07:
-				col_set_str(pinfo->cinfo, COL_INFO, "Network Selection Request");
-				expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN, "unsupported packet");
+			case 0x00: /* NET_MODEM_REG_STATUS_GET_REQ */
+				col_set_str(pinfo->cinfo, COL_INFO, "Network Modem Registration Status Request");
 				break;
-			case 0x20:
+			case 0x01: /* NET_MODEM_REG_STATUS_GET_RESP */
+				col_set_str(pinfo->cinfo, COL_INFO, "Network Modem Registration Status Response");
+				break;
+			case 0x02: /* NET_MODEM_REG_STATUS_IND */
+				col_set_str(pinfo->cinfo, COL_INFO, "Network Modem Registration Status Indication");
+				break;
+			case 0x03: /* NET_MODEM_AVAILABLE_GET_REQ */
+				col_set_str(pinfo->cinfo, COL_INFO, "Network Modem Available Get Request");
+				break;
+			case 0x04: /* NET_MODEM_AVAILABLE_GET_RESP */
+				col_set_str(pinfo->cinfo, COL_INFO, "Network Modem Available Get Response");
+				break;
+			case 0x05: /* NET_AVAILABLE_CANCEL_REQ */
+				col_set_str(pinfo->cinfo, COL_INFO, "Network Modem Available Cancel Request");
+				break;
+			case 0x06: /* NET_AVAILABLE_CANCEL_RESP */
+				col_set_str(pinfo->cinfo, COL_INFO, "Network Modem Available Cancel Response");
+				break;
+			case 0x07: /* NET_SET_REQ */
+				col_set_str(pinfo->cinfo, COL_INFO, "Network Set Request");
+				break;
+			case 0x08: /* NET_SET_RESP */
+				col_set_str(pinfo->cinfo, COL_INFO, "Network Set Response");
+				break;
+			case 0x09: /* NET_SET_CANCEL_REQ */
+				col_set_str(pinfo->cinfo, COL_INFO, "Network Set Cancel Request");
+				break;
+			case 0x0A: /* NET_SET_CANCEL_RESP */
+				col_set_str(pinfo->cinfo, COL_INFO, "Network Set Cancel Response");
+				break;
+			case 0x0B: /* NET_RSSI_GET_REQ */
+				col_set_str(pinfo->cinfo, COL_INFO, "Network RSSI Get Request");
+				break;
+			case 0x0C: /* NET_RSSI_GET_RESP */
+				col_set_str(pinfo->cinfo, COL_INFO, "Network RSSI Get Response");
+				break;
+			case 0x0D: /* NET_CS_CONTROL_REQ */
+				col_set_str(pinfo->cinfo, COL_INFO, "Network CS Control Request");
+				break;
+			case 0x0E: /* NET_CS_CONTROL_RESP */
+				col_set_str(pinfo->cinfo, COL_INFO, "Network CS Control Response");
+				break;
+			case 0x0F: /* NET_CS_WAKEUP_REQ */
+				col_set_str(pinfo->cinfo, COL_INFO, "Network CS Wakeup Request");
+				break;
+			case 0x10: /* NET_CS_WAKEUP_RESP */
+				col_set_str(pinfo->cinfo, COL_INFO, "Network CS Wakeup Response");
+				break;
+			case 0x11: /* NET_TEST_CARRIER_REQ */
+				col_set_str(pinfo->cinfo, COL_INFO, "Network Test Carrier Request");
+				break;
+			case 0x12: /* NET_TEST_CARRIER_RESP */
+				col_set_str(pinfo->cinfo, COL_INFO, "Network Test Carrier Response");
+				break;
+			case 0x19: /* NET_CS_STATE_IND */
+				col_set_str(pinfo->cinfo, COL_INFO, "Network CS State Indication");
+				break;
+			case 0x1A: /* NET_NEIGHBOUR_CELLS_REQ */
+				col_set_str(pinfo->cinfo, COL_INFO, "Network Neighbour Cells Request");
+				break;
+			case 0x1B: /* NET_NEIGHBOUR_CELLS_RESP */
+				col_set_str(pinfo->cinfo, COL_INFO, "Network Neighbour Cells Response");
+				break;
+			case 0x1C: /* NET_NETWORK_SELECT_MODE_SET_REQ */
+				col_set_str(pinfo->cinfo, COL_INFO, "Network Select Mode Set Request");
+				break;
+			case 0x1D: /* SIZE_NET_NETWORK_SELECT_MODE_SET_RESP */
+				col_set_str(pinfo->cinfo, COL_INFO, "Network Select Mode Set Response");
+				break;
+			case 0x1E: /* NET_RSSI_IND */
+				col_set_str(pinfo->cinfo, COL_INFO, "Network RSSI Indication");
+				break;
+			case 0x20: /* NET_CIPHERING_IND */
 				col_set_str(pinfo->cinfo, COL_INFO, "Network Ciphering Indication");
-				expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN, "unsupported packet");
 				break;
-			case 0xE2:
-				col_set_str(pinfo->cinfo, COL_INFO, "Network Status Indication");
-				dissect_isi_network_status(tvb, pinfo, item, tree);
+			case 0x27: /* NET_TIME_IND */
+				col_set_str(pinfo->cinfo, COL_INFO, "Network Time Indication");
 				break;
-			case 0x42:
+			case 0x28: /* NET_OLD_OPER_NAME_READ_REQ */
+				col_set_str(pinfo->cinfo, COL_INFO, "Network Old Operator Name Read Request");
+				break;
+			case 0x29: /* NET_OLD_OPER_NAME_READ_RESP */
+				col_set_str(pinfo->cinfo, COL_INFO, "Network Old Operator Name Read Response");
+				break;
+			case 0x2C: /* NET_CHANNEL_INFO_IND */
+				col_set_str(pinfo->cinfo, COL_INFO, "Network Channel Info Indication");
+				break;
+			case 0x2D: /* NET_CHANNEL_INFO_REQ */
+				col_set_str(pinfo->cinfo, COL_INFO, "Network Channel Info Request");
+				break;
+			case 0x2E: /* NET_CHANNEL_INFO_RESP */
+				col_set_str(pinfo->cinfo, COL_INFO, "Network Channel Info Response");
+				break;
+			case 0x31: /* NET_GSM_LCS_LOCATION_IND */
+				col_set_str(pinfo->cinfo, COL_INFO, "Network GSM LCS Location Indication");
+				break;
+			case 0x32: /* NET_SIM_REFRESH_REQ */
+				col_set_str(pinfo->cinfo, COL_INFO, "Network SIM Refresh Request");
+				break;
+			case 0x33: /* NET_SIM_REFRESH_RESP */
+				col_set_str(pinfo->cinfo, COL_INFO, "Network SIM Refresh Response");
+				break;
+			case 0x34: /* NET_GSM_LCS_ASTNC_NTF */
+				col_set_str(pinfo->cinfo, COL_INFO, "Network GSM LCS ASTNC NTF");
+				break;
+			case 0x35: /* NET_RAT_IND */
+				col_set_str(pinfo->cinfo, COL_INFO, "Network RAT Indication");
+				break;
+			case 0x36: /* NET_RAT_REQ */
+				col_set_str(pinfo->cinfo, COL_INFO, "Network RAT Request");
+				break;
+			case 0x37: /* NET_RAT_RESP */
+				col_set_str(pinfo->cinfo, COL_INFO, "Network RAT Response");
+				break;
+			case 0x38: /* NET_AGPS_FRAME_TRIGGER_REQ */
+				col_set_str(pinfo->cinfo, COL_INFO, "Network AGPS Frame Trigger Request");
+				break;
+			case 0x39: /* NET_AGPS_FRAME_TRIGGER_RESP */
+				col_set_str(pinfo->cinfo, COL_INFO, "Network AGPS Frame Trigger Response");
+				break;
+			case 0x3A: /* NET_CS_STATE_REQ */
+				col_set_str(pinfo->cinfo, COL_INFO, "Network CS State Request");
+				break;
+			case 0x3B: /* NET_CS_STATE_RESP */
+				col_set_str(pinfo->cinfo, COL_INFO, "Network CS State Response");
+				break;
+			case 0x3C: /* NET_UMA_INFO_IND */
+				col_set_str(pinfo->cinfo, COL_INFO, "Network UMA Info Indication");
+				break;
+			case 0x3D: /* NET_RRLP_SUPL_HANDLE_REQ */
+				col_set_str(pinfo->cinfo, COL_INFO, "Netwrok RRLP SUPL Handle Request");
+				break;
+			case 0x3E: /* NET_RRLP_SUPL_HANDLE_RESP */
+				col_set_str(pinfo->cinfo, COL_INFO, "Netwrok RRLP SUPL Handle Response");
+				break;
+			case 0x3F: /* NET_RADIO_INFO_IND */
+				col_set_str(pinfo->cinfo, COL_INFO, "Network Radio Info Indication");
+				break;
+			case 0x40: /* NET_CELL_INFO_GET_REQ */
+				col_set_str(pinfo->cinfo, COL_INFO, "Network Cell Info Get Request");
+				break;
+			case 0x41: /* NET_CELL_INFO_GET_RESP */
+				col_set_str(pinfo->cinfo, COL_INFO, "Network Cell Info Get Response");
+				break;
+			case 0x42: /* NET_CELL_INFO_IND */
 				col_set_str(pinfo->cinfo, COL_INFO, "Network Cell Info Indication");
 				dissect_isi_network_cell_info_ind(tvb, pinfo, item, tree);
 				break;
+			case 0x43: /* NET_NITZ_NAME_IND */
+				col_set_str(pinfo->cinfo, COL_INFO, "Network NITZ Name Indication");
+				break;
+			case 0xE0: /* NET_REG_STATUS_GET_REQ */
+				col_set_str(pinfo->cinfo, COL_INFO, "Network Registration Status Get Request");
+				break;
+			case 0xE1: /* NET_REG_STATUS_GET_RESP */
+				col_set_str(pinfo->cinfo, COL_INFO, "Network Registration Status Get Response");
+				break;
+			case 0xE2: /* NET_REG_STATUS_IND */
+				col_set_str(pinfo->cinfo, COL_INFO, "Network Registration Status Indication");
+				dissect_isi_network_status(tvb, pinfo, item, tree);
+				break;
+			case 0xE3: /* NET_AVAILABLE_GET_REQ */
+				col_set_str(pinfo->cinfo, COL_INFO, "Network Available Get Request");
+				break;
+			case 0xE4: /* NET_AVAILABLE_GET_RESP */
+				col_set_str(pinfo->cinfo, COL_INFO, "Network Available Get Response");
+				break;
+			case 0xE5: /* NET_OPER_NAME_READ_REQ */
+				col_set_str(pinfo->cinfo, COL_INFO, "Network Operator Name Read Request");
+				break;
+			case 0xE6: /* NET_OPER_NAME_READ_RESP */
+				col_set_str(pinfo->cinfo, COL_INFO, "Network Operator Name Read Response");
+				break;
+
 			case 0xF0:
 				dissect_isi_common("Network", tvb, pinfo, tree);
 				break;
