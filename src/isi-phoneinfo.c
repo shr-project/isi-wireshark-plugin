@@ -81,10 +81,42 @@ static const value_string isi_phoneinfo_id[] = {
 	{0x00, NULL}
 };
 
+static const value_string isi_phoneinfo_product_target[] = {
+	{0x01, "INFO_PRODUCT_NAME"},
+	{0x02, "INFO_PRODUCT_CATEGORY"},
+	{0x03, "INFO_PRODUCT_XID"},
+	{0x04, "INFO_PRODUCT_DEV_NAME"},
+	{0x05, "INFO_PRODUCT_COMP01"},
+	{0x06, "INFO_PRODUCT_NAME_COMPRESSED"},
+	{0x07, "INFO_PRODUCT_MANUFACTURER"},
+	{0x08, "INFO_PRODUCT_XCVR_ID"},
+	{0x09, "INFO_PRODUCT_NUM_ID"},
+	{0x0A, "INFO_PRODUCT_TYPE_ID"},
+	{0x0B, "INFO_USB_VENDOR_ID"},
+	{0x0C, "INFO_USB_MASS_ID"},
+	{0x0D, "INFO_USB_NOKIA_ID"},
+	{0x0E, "INFO_USB_SICD_ID"},
+	{0x0F, "INFO_BT_PID"},
+	{0x10, "INFO_USB_RNDIS_ID"},
+};
+
+static const value_string isi_phoneinfo_status[] = {
+	{0x00, "INFO_OK"},
+	{0x01, "INFO_FAIL"},
+	{0x02, "INFO_NO_NUMBER"},
+	{0x03, "INFO_NOT_SUPPORTED"},
+};
+
 static dissector_handle_t isi_phoneinfo_handle;
 static void dissect_isi_phoneinfo(tvbuff_t *tvb, packet_info *pinfo, proto_item *tree);
 
 static guint32 hf_isi_phoneinfo_cmd = -1;
+static guint32 hf_isi_phoneinfo_status = -1;
+static guint32 hf_isi_phoneinfo_product_target = -1;
+static guint32 hf_isi_phoneinfo_subblock_count = -1;
+static guint32 hf_isi_phoneinfo_subblock_id = -1;
+static guint32 hf_isi_phoneinfo_subblock_length = -1;
+static guint32 hf_isi_phoneinfo_subblock_value = -1;
 
 
 void proto_reg_handoff_isi_phoneinfo(void) {
@@ -99,13 +131,40 @@ void proto_reg_handoff_isi_phoneinfo(void) {
 void proto_register_isi_phoneinfo(void) {
 	static hf_register_info hf[] = {
 		{ &hf_isi_phoneinfo_cmd,
-			{ "Command", "isi.phoneinfo.cmd", FT_UINT8, BASE_HEX, isi_phoneinfo_id, 0x0, "Command", HFILL }}
+			{ "Command", "isi.phoneinfo.cmd", FT_UINT8, BASE_HEX, isi_phoneinfo_id, 0x0, "Command", HFILL }},
+		{ &hf_isi_phoneinfo_status,
+			{ "Status", "isi.phoneinfo.status", FT_UINT8, BASE_HEX, isi_phoneinfo_status, 0x0, "Status", HFILL }},
+		{ &hf_isi_phoneinfo_product_target,
+			{ "Target", "isi.phoneinfo.target", FT_UINT8, BASE_HEX, isi_phoneinfo_product_target, 0x0, "Target", HFILL }},
+		{ &hf_isi_phoneinfo_subblock_count,
+			{ "Subblock-Count", "isi.phoneinfo.subblock_count", FT_UINT8, BASE_DEC, NULL, 0x0, "Subblock-Count", HFILL }},
+		{ &hf_isi_phoneinfo_subblock_id,
+			{ "Id", "isi.phoneinfo.subblock.id", FT_UINT8, BASE_HEX, NULL, 0x0, "Id", HFILL }},
+		{ &hf_isi_phoneinfo_subblock_length,
+			{ "Length", "isi.phoneinfo.subblock.length", FT_UINT8, BASE_DEC, NULL, 0x0, "Length", HFILL }},
+		{ &hf_isi_phoneinfo_subblock_value,
+			{ "Value", "isi.phoneinfo.subblock.value", FT_STRING, BASE_NONE, NULL, 0x0, "Value", HFILL }},
 	};
 
 	proto_register_field_array(proto_isi, hf, array_length(hf));
 	register_dissector("isi.phoneinfo", dissect_isi_phoneinfo, proto_isi);
 }
 
+
+static void dissect_isi_phoneinfo_subblock(guint8 count, guint8 offset, tvbuff_t *tvb, packet_info *pinfo, proto_item *tree) {
+	guint8 nr;
+	guint8 l, sl;
+	for(nr = 1; count; nr++, count--) {
+		l = tvb_get_guint8(tvb, offset + 1);
+		sl = tvb_get_guint8(tvb, offset + 3);
+		proto_item *subitem = proto_tree_add_text(tree, tvb, offset, 4 + l, "Value %d", nr);
+		proto_tree *subtree = proto_item_add_subtree(subitem, ett_isi_info);
+		proto_tree_add_item(subtree, hf_isi_phoneinfo_subblock_id, tvb, offset, 1, FALSE);
+		proto_tree_add_item(subtree, hf_isi_phoneinfo_subblock_length, tvb, offset + 1, 1, FALSE);
+		proto_tree_add_item(subtree, hf_isi_phoneinfo_subblock_value, tvb, offset + 4, sl, FALSE);
+		offset += l;
+	}
+}
 
 static void dissect_isi_phoneinfo(tvbuff_t *tvb, packet_info *pinfo, proto_item *isitree) {
 	proto_item *item = NULL;
@@ -120,9 +179,165 @@ static void dissect_isi_phoneinfo(tvbuff_t *tvb, packet_info *pinfo, proto_item 
 		cmd = tvb_get_guint8(tvb, 0);
 
 		switch (cmd) {
+			case 0x00: /* INFO_SERIAL_NUMBER_READ_REQ */
+				col_set_str(pinfo->cinfo, COL_INFO, "Serial Number Read Request");
+				break;
+			case 0x01: /* INFO_SERIAL_NUMBER_READ_RESP */
+				col_set_str(pinfo->cinfo, COL_INFO, "Serial Number Read Response");
+				break;
+			case 0x0f: /* INFO_PP_CUSTOMER_DEFAULTS_REQ */
+				col_set_str(pinfo->cinfo, COL_INFO, "PP Customer Defaults Request");
+				break;
+			case 0x10: /* INFO_PP_CUSTOMER_DEFAULTS_RESP */
+				col_set_str(pinfo->cinfo, COL_INFO, "PP Customer Defaults Response");
+				break;
+			case 0x02: /* INFO_PP_READ_REQ */
+				col_set_str(pinfo->cinfo, COL_INFO, "PP Read Request");
+				break;
+			case 0x03: /* INFO_PP_READ_RESP */
+				col_set_str(pinfo->cinfo, COL_INFO, "PP Read Response");
+				break;
+			case 0x04: /* INFO_PP_WRITE_REQ */
+				col_set_str(pinfo->cinfo, COL_INFO, "PP Write Request");
+				break;
+			case 0x05: /* INFO_PP_WRITE_RESP */
+				col_set_str(pinfo->cinfo, COL_INFO, "PP Write Response");
+				break;
+			case 0x06: /* INFO_PP_IND */
+				col_set_str(pinfo->cinfo, COL_INFO, "PP Indication");
+				break;
+			case 0x29: /* INFO_PP_DATA_READ_REQ */
+				col_set_str(pinfo->cinfo, COL_INFO, "PP Data Read Request");
+				break;
+			case 0x2a: /* INFO_PP_DATA_READ_RESP */
+				col_set_str(pinfo->cinfo, COL_INFO, "PP Data Read Response");
+				break;
+			case 0x2b: /* INFO_PP_DATA_WRITE_REQ */
+				col_set_str(pinfo->cinfo, COL_INFO, "PP Data Write Request");
+				break;
+			case 0x2c: /* INFO_PP_DATA_WRITE_RESP */
+				col_set_str(pinfo->cinfo, COL_INFO, "PP Data Write Response");
+				break;
+			case 0x2d: /* INFO_PP_DATA_IND */
+				col_set_str(pinfo->cinfo, COL_INFO, "PP Data Indication");
+				break;
+			case 0x07: /* INFO_VERSION_READ_REQ */
+				col_set_str(pinfo->cinfo, COL_INFO, "Version Read Request");
+				break;
+			case 0x08: /* INFO_VERSION_READ_RESP */
+				col_set_str(pinfo->cinfo, COL_INFO, "Version Read Response");
+				break;
+			case 0x09: /* INFO_VERSION_WRITE_REQ */
+				col_set_str(pinfo->cinfo, COL_INFO, "Version Write Request");
+				break;
+			case 0x0a: /* INFO_VERSION_WRITE_RESP */
+				col_set_str(pinfo->cinfo, COL_INFO, "Version Write Response");
+				break;
+			case 0x0b: /* INFO_PROD_INFO_READ_REQ */
+				col_set_str(pinfo->cinfo, COL_INFO, "Prod Info Read Request");
+				break;
+			case 0x0c: /* INFO_PROD_INFO_READ_RESP */
+				col_set_str(pinfo->cinfo, COL_INFO, "Prod Info Read Response");
+				break;
+			case 0x0d: /* INFO_PROD_INFO_WRITE_REQ */
+				col_set_str(pinfo->cinfo, COL_INFO, "Prod Info Write Request");
+				break;
+			case 0x0e: /* INFO_PROD_INFO_WRITE_RESP */
+				col_set_str(pinfo->cinfo, COL_INFO, "Prod Info Write Response");
+				break;
+			case 0x11: /* INFO_PRODUCT_TYPE_WRITE_REQ */
+				col_set_str(pinfo->cinfo, COL_INFO, "Product Type Write Request");
+				break;
+			case 0x12: /* INFO_PRODUCT_TYPE_WRITE_RESP */
+				col_set_str(pinfo->cinfo, COL_INFO, "Product Type Write Response");
+				break;
+			case 0x13: /* INFO_PRODUCT_TYPE_READ_REQ */
+				col_set_str(pinfo->cinfo, COL_INFO, "Product Type Read Request");
+				break;
+			case 0x14: /* INFO_PRODUCT_TYPE_READ_RESP */
+				col_set_str(pinfo->cinfo, COL_INFO, "Product Type Read Response");
+				break;
+			case 0x15: /* INFO_PRODUCT_INFO_READ_REQ */
+				col_set_str(pinfo->cinfo, COL_INFO, "Product Info Read Request");
+				proto_tree_add_item(tree, hf_isi_phoneinfo_product_target, tvb, 1, 1, FALSE);
+				break;
+			case 0x16: /* INFO_PRODUCT_INFO_READ_RESP */
+				col_set_str(pinfo->cinfo, COL_INFO, "Product Info Read Response");
+				proto_tree_add_item(tree, hf_isi_phoneinfo_status, tvb, 1, 1, FALSE);
+				proto_tree_add_item(tree, hf_isi_phoneinfo_subblock_count, tvb, 2, 1, FALSE);
+				dissect_isi_phoneinfo_subblock(tvb_get_guint8(tvb, 2), 3, tvb, pinfo, tree);
+				break;
+			case 0x19: /* INFO_BT_ID_WRITE_REQ */
+				col_set_str(pinfo->cinfo, COL_INFO, "BT ID Write Request");
+				break;
+			case 0x1a: /* INFO_BT_ID_WRITE_RESP */
+				col_set_str(pinfo->cinfo, COL_INFO, "BT ID Write Response");
+				break;
+			case 0x17: /* INFO_BT_ID_READ_REQ */
+				col_set_str(pinfo->cinfo, COL_INFO, "BT ID Read Request");
+				break;
+			case 0x18: /* INFO_BT_ID_READ_RESP */
+				col_set_str(pinfo->cinfo, COL_INFO, "BT ID Read Response");
+				break;
+			case 0x1b: /* INFO_WT_READ_REQ */
+				col_set_str(pinfo->cinfo, COL_INFO, "WT Read Request");
+				break;
+			case 0x1c: /* INFO_WT_READ_RESP */
+				col_set_str(pinfo->cinfo, COL_INFO, "WT Read Response");
+				break;
+			case 0x1d: /* INFO_WT_WRITE_REQ */
+				col_set_str(pinfo->cinfo, COL_INFO, "WT Write Request");
+				break;
+			case 0x1e: /* INFO_WT_WRITE_RESP */
+				col_set_str(pinfo->cinfo, COL_INFO, "WT Write Response");
+				break;
+			case 0x1f: /* INFO_LONG_DATA_READ_REQ */
+				col_set_str(pinfo->cinfo, COL_INFO, "Long Data Read Request");
+				break;
+			case 0x20: /* INFO_LONG_DATA_READ_RESP */
+				col_set_str(pinfo->cinfo, COL_INFO, "Long Data Read Response");
+				break;
+			case 0x21: /* INFO_LONG_DATA_WRITE_REQ */
+				col_set_str(pinfo->cinfo, COL_INFO, "Long Data Write Request");
+				break;
+			case 0x22: /* INFO_LONG_DATA_WRITE_RESP */
+				col_set_str(pinfo->cinfo, COL_INFO, "Long Data Write Response");
+				break;
+			case 0x23: /* INFO_WLAN_INFO_READ_REQ */
+				col_set_str(pinfo->cinfo, COL_INFO, "WLAN Info Read Request");
+				break;
+			case 0x24: /* INFO_WLAN_INFO_READ_RESP */
+				col_set_str(pinfo->cinfo, COL_INFO, "WLAN Info Read Response");
+				break;
+			case 0x25: /* INFO_IP_PASSTHROUGH_READ_REQ */
+				col_set_str(pinfo->cinfo, COL_INFO, "IP Passthrough Read Request");
+				break;
+			case 0x26: /* INFO_IP_PASSTHROUGH_READ_RESP */
+				col_set_str(pinfo->cinfo, COL_INFO, "IP Passthrough Read Response");
+				break;
+			case 0x27: /* INFO_WLAN_INFO_WRITE_REQ */
+				col_set_str(pinfo->cinfo, COL_INFO, "WLAN Info Write Request");
+				break;
+			case 0x28: /* INFO_WLAN_INFO_WRITE_RESP */
+				col_set_str(pinfo->cinfo, COL_INFO, "WLAN Info Write Response");
+				break;
+			case 0x2e: /* INFO_PRODUCT_RAT_BAND_READ_REQ */
+				col_set_str(pinfo->cinfo, COL_INFO, "Product RAT Band Read Request");
+				break;
+			case 0x2f: /* INFO_PRODUCT_RAT_BAND_READ_RESP */
+				col_set_str(pinfo->cinfo, COL_INFO, "Product RAT Band Read Response");
+				break;
+			case 0x30: /* INFO_PRODUCT_RAT_BAND_WRITE_REQ */
+				col_set_str(pinfo->cinfo, COL_INFO, "Product RAT Band Write Request");
+				break;
+			case 0x31: /* INFO_PRODUCT_RAT_BAND_WRITE_RESP */
+				col_set_str(pinfo->cinfo, COL_INFO, "Product RAT Band Write Response");
+				break;
+
 			case 0xF0: /* COMMON_MESSAGE */
 				dissect_isi_common("PhoneInfo", tvb, pinfo, tree);
 				break;
+
 			default:
 				col_set_str(pinfo->cinfo, COL_INFO, "unknown PhoneInfo packet");
 				expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN, "unsupported packet");
