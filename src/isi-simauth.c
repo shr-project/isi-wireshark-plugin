@@ -270,6 +270,11 @@ static void dissect_isi_sim_auth(tvbuff_t *tvb, packet_info *pinfo, proto_item *
 						break;
 				}
 				break;
+
+			case 0xF0: /* COMMON_MESSAGE */
+				dissect_isi_common("Security", tvb, pinfo, tree);
+				break;
+
 			default:
 				col_set_str(pinfo->cinfo, COL_INFO, "unknown SIM Authentication packet");
 				break;
