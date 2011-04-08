@@ -1,7 +1,16 @@
 include config.mk
 
 CFLAGS+=-I${WIRESHARKDIR} -DHAVE_STDARG_H -DHAVE_CONFIG_H -g
-OBJECTS:=src/packet-isi.o src/plugin.o src/isi-sim.o src/isi-simauth.o src/isi-network.o src/isi-gps.o src/isi-ss.o src/isi-gss.o src/isi-sms.o
+OBJECTS:=src/packet-isi.o \
+	src/plugin.o \
+	src/isi-sim.o \
+	src/isi-simauth.o \
+	src/isi-network.o \
+	src/isi-gps.o \
+	src/isi-ss.o \
+	src/isi-gss.o \
+	src/isi-sms.o \
+	src/isi-mtc.o
 
 all: isi.so
 
