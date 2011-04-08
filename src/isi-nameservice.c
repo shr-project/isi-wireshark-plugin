@@ -82,6 +82,10 @@ static void dissect_isi_nameservice(tvbuff_t *tvb, packet_info *pinfo, proto_ite
 				col_set_str(pinfo->cinfo, COL_INFO, "Nameservice Add ");
 				break;
 
+			case 0xF0: /* COMMON_MESSAGE */
+				dissect_isi_common("Nameservice", tvb, pinfo, tree);
+				break;
+
 			default:
 				col_set_str(pinfo->cinfo, COL_INFO, "unknown Nameservice packet");
 				expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN, "unsupported packet");

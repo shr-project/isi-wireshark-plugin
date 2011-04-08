@@ -154,27 +154,8 @@ static void dissect_isi_gss(tvbuff_t *tvb, packet_info *pinfo, proto_item *isitr
 				}
 				break;
 
-			case 0xF0: /* Common Message */
-				proto_tree_add_item(tree, hf_isi_gss_common_message_id, tvb, 1, 1, FALSE);
-				//proto_tree_add_item(tree, hf_isi_gss_cause, tvb, 2, 1, FALSE);
-				code = tvb_get_guint8(tvb, 1);
-				switch(code) {
-					case 0x01: /* COMM_SERVICE_NOT_IDENTIFIED_RESP */
-						col_set_str(pinfo->cinfo, COL_INFO, "Common Message: Service Not Identified Response");
-						break;
-					case 0x12: /* COMM_ISI_VERSION_GET_REQ */
-						col_set_str(pinfo->cinfo, COL_INFO, "Common Message: ISI Version Get Request");
-						break;
-					case 0x13: /* COMM_ISI_VERSION_GET_RESP */
-						col_set_str(pinfo->cinfo, COL_INFO, "Common Message: ISI Version Get Response");
-						break;
-					case 0x14: /* COMM_ISA_ENTITY_NOT_REACHABLE_RESP */
-						col_set_str(pinfo->cinfo, COL_INFO, "Common Message: ISA Entity Not Reachable");
-						break;
-					default:
-						col_set_str(pinfo->cinfo, COL_INFO, "Common Message");
-						break;
-				}
+			case 0xF0: /* COMMON_MESSAGE */
+				dissect_isi_common("General Stack Server", tvb, pinfo, tree);
 				break;
 
 

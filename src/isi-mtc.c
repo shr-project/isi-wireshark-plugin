@@ -227,9 +227,9 @@ static void dissect_isi_mtc(tvbuff_t *tvb, packet_info *pinfo, proto_item *isitr
 				proto_tree_add_item(tree, hf_isi_mtc_action, tvb, 2, 1, FALSE);
 				col_set_str(pinfo->cinfo, COL_INFO, "MTC RF Status Info Indication");
 				break;
-			case 0xF0: /* MTC_COMMON_MESSAGE */
+			case 0xF0: /* COMMON_MESSAGE */
 				col_set_str(pinfo->cinfo, COL_INFO, "MTC Common Message");
-				dissect_isi_common(tvb, pinfo, tree);
+				dissect_isi_common("MTC", tvb, pinfo, tree);
 				break;
 			default:
 				col_set_str(pinfo->cinfo, COL_INFO, "unknown MTC packet");

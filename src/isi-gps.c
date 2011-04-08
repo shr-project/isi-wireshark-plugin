@@ -336,6 +336,9 @@ static void dissect_isi_gps(tvbuff_t *tvb, packet_info *pinfo, proto_item *isitr
 				col_set_str(pinfo->cinfo, COL_INFO, "GPS Data");
 				dissect_isi_gps_data(tvb, pinfo, item, tree);
 				break;
+			case 0xF0: /* COMMON_MESSAGE */
+				dissect_isi_common("GPS", tvb, pinfo, tree);
+				break;
 			default:
 				col_add_fstr(pinfo->cinfo, COL_INFO, "unknown GPS packet (0x%02x)", cmd);
 				break;

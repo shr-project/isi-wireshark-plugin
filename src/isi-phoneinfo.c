@@ -120,6 +120,9 @@ static void dissect_isi_phoneinfo(tvbuff_t *tvb, packet_info *pinfo, proto_item 
 		cmd = tvb_get_guint8(tvb, 0);
 
 		switch (cmd) {
+			case 0xF0: /* COMMON_MESSAGE */
+				dissect_isi_common("PhoneInfo", tvb, pinfo, tree);
+				break;
 			default:
 				col_set_str(pinfo->cinfo, COL_INFO, "unknown PhoneInfo packet");
 				expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN, "unsupported packet");

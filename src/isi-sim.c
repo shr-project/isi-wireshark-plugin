@@ -462,21 +462,8 @@ static void dissect_isi_sim(tvbuff_t *tvb, packet_info *pinfo, proto_item *isitr
 				}
 				break;
 
-			case 0xF0: /* SIM_COMMON_MESSAGE */
-				proto_tree_add_item(tree, hf_isi_sim_cause, tvb, 1, 1, FALSE);
-				proto_tree_add_item(tree, hf_isi_sim_secondary_cause, tvb, 2, 1, FALSE);
-				code = tvb_get_guint8(tvb, 1);
-				switch(code) {
-					case 0x00:
-						col_set_str(pinfo->cinfo, COL_INFO, "Common Message: SIM Server Not Available");
-						break;
-					case 0x12:
-						col_set_str(pinfo->cinfo, COL_INFO, "Common Message: PIN Enable OK");
-						break;
-					default:
-						col_set_str(pinfo->cinfo, COL_INFO, "Common Message");
-						break;
-				}
+			case 0xF0: /* COMMON_MESSAGE */
+				dissect_isi_common("SIM", tvb, pinfo, tree);
 				break;
 
 			default:

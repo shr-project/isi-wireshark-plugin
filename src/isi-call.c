@@ -151,6 +151,9 @@ static void dissect_isi_call(tvbuff_t *tvb, packet_info *pinfo, proto_item *isit
 		cmd = tvb_get_guint8(tvb, 0);
 
 		switch (cmd) {
+			case 0xF0: /* CALL_COMMON_MESSAGE */
+				dissect_isi_common("Call", tvb, pinfo, tree);
+				break;
 			default:
 				col_set_str(pinfo->cinfo, COL_INFO, "unknown Call packet");
 				expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN, "unsupported packet");

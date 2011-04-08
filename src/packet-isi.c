@@ -185,7 +185,7 @@ static const value_string hf_isi_resource[] = {
 	{0x8E, "AT Modem Server"},
 	{0x8F, "AT Application Server"},
 	{0x90, "Modem LCS Server"},
-	{0x91, "Modem Test Server"}
+	{0x91, "Modem Test Server"},
 	{0x94, "ODIN"},
 	{0x95, "Wireless Telephony Application"},
 	{0x9A, "CDMA DSP Layer 1 Data"},
@@ -216,7 +216,7 @@ static const value_string hf_isi_resource[] = {
 	{0xB3, "News Delivery Server"},
 	{0xB4, "WCDMA Radio Factory Server"},
 	{0xB5, "EUTRAN L2 layers towards MACN layers server"},
-	{0xB6, "EUTRAN L1 layer server */
+	{0xB6, "EUTRAN L1 layer server"},
 	{0xB7, "RF control and tuning"},
 	{0xB8, "Instance Message Engine"},
 	{0xB9, "Timing & NAT Traversal (TNT)"},
@@ -287,6 +287,29 @@ static const value_string hf_isi_resource[] = {
 	{0xFE, "DSP Music"},
 };
 
+static const value_string isi_common_cmd[] = {
+	{0x14, "COMM_ISA_ENTITY_NOT_REACHABLE_RESP"},
+	{0x01, "COMM_SERVICE_NOT_IDENTIFIED_RESP"},
+	{0x02, "COMM_SERVER_VERSION_GET_REQ"},
+	{0x03, "COMM_SERVER_VERSION_GET_RESP"},
+	{0x12, "COMM_ISI_VERSION_GET_REQ"},
+	{0x13, "COMM_ISI_VERSION_GET_RESP"},
+	{0x04, "COMM_FTD_DATA_REQ"},
+	{0x05, "COMM_FTD_DATA_RESP"},
+	{0x06, "COMM_FTD_TEST_DATA_REQ"},
+	{0x07, "COMM_FTD_TEST_DATA_RESP"},
+	{0x08, "COMM_FTD_DATA_DEACTIVATE_REQ"},
+	{0x09, "COMM_FTD_DATA_DEACTIVATE_RESP"},
+	{0x0C, "COMM_PWR_OFF_CONFIRM_REQ"},
+	{0x0D, "COMM_PWR_OFF_CONFIRM_RESP"},
+	{0x0E, "COMM_NVD_SET_DEFAULT_REQ"},
+	{0x0F, "COMM_NVD_SET_DEFAULT_RESP"},
+	{0x10, "COMM_NVD_VERSION_CHK_REQ"},
+	{0x11, "COMM_NVD_VERSION_CHK_RESP"},
+	{0x15, "COMM_RF_CONTROL_REQ"},
+	{0x16, "COMM_RF_CONTROL_RESP"},
+	{0x17, "COMM_SERVICE_NOT_AUTHENTICATED_RESP"},
+};
 
 
 static guint32 hf_isi_rdev = -1;
@@ -296,6 +319,9 @@ static guint32 hf_isi_len  = -1;
 static guint32 hf_isi_robj = -1;
 static guint32 hf_isi_sobj = -1;
 static guint32 hf_isi_id   = -1;
+static guint32 hf_isi_comcmd = -1;
+static guint32 hf_isi_version_major = -1;
+static guint32 hf_isi_version_minor = -1;
 
 /* Subtree handles: set by register_subtree_array */
 static guint32 ett_isi = -1;
@@ -375,7 +401,16 @@ void proto_register_isi(void) {
 		    NULL, 0x0, "Sender Object", HFILL }},
 		{ &hf_isi_id,
 		  { "Packet ID", "isi.id", FT_UINT8, BASE_DEC,
-		    NULL, 0x0, "Packet ID", HFILL }}
+		    NULL, 0x0, "Packet ID", HFILL }},
+		{ &hf_isi_comcmd,
+		  { "Sub Command", "isi.comcmd", FT_UINT8, BASE_HEX,
+		    isi_common_cmd, 0x0, "Common Command", HFILL }},
+		{ &hf_isi_version_major,
+		  { "ISI Version Major", "isi.version_major", FT_UINT8, BASE_HEX,
+		    NULL, 0x0, "ISI Version Major", HFILL }},
+		{ &hf_isi_version_minor,
+		  { "ISI Version Minor", "isi.version_minor", FT_UINT8, BASE_HEX,
+		    NULL, 0x0, "ISI Version Minor", HFILL }},
     };
 
 	static gint *ett[] = {
@@ -384,7 +419,7 @@ void proto_register_isi(void) {
 		&ett_isi_network_gsm_band_info
 	};
 
- 	proto_isi = proto_register_protocol("Intelligent Service Interface", "ISI", "isi");
+	proto_isi = proto_register_protocol("Intelligent Service Interface", "ISI", "isi");
 
 	proto_register_field_array(proto_isi, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
@@ -464,3 +499,83 @@ static void dissect_isi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 			call_dissector(data_handle, content, pinfo, isi_tree);
 	}
 }
+
+void dissect_isi_common(const char *resource, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+	char *c_subcmd = "unknown common command";
+	guint8 comcmd = tvb_get_guint8(tvb, 1);
+	proto_tree_add_item(tree, hf_isi_comcmd, tvb, 1, 1, FALSE);
+
+	switch(comcmd) {
+		case 0x01: /* COMM_SERVICE_NOT_IDENTIFIED_RESP */
+			c_subcmd = "Service Not Identified Response";
+			break;
+		case 0x02: /* COMM_SERVER_VERSION_GET_REQ */
+			c_subcmd = "Server Version Get Request";
+			break;
+		case 0x03: /* COMM_SERVER_VERSION_GET_RESP */
+			c_subcmd = "Server Version Get Response";
+			break;
+		case 0x04: /* COMM_FTD_DATA_REQ */
+			c_subcmd = "FTD Data Request";
+			break;
+		case 0x05: /* COMM_FTD_DATA_RESP */
+			c_subcmd = "FTD Data Response";
+			break;
+		case 0x06: /* COMM_FTD_TEST_DATA_REQ */
+			c_subcmd = "FTD Test Data Request";
+			break;
+		case 0x07: /* COMM_FTD_TEST_DATA_RESP */
+			c_subcmd = "FTD Test Data Response";
+			break;
+		case 0x08: /* COMM_FTD_DATA_DEACTIVATE_REQ */
+			c_subcmd = "FTD Data Deactivate Request";
+			break;
+		case 0x09: /* COMM_FTD_DATA_DEACTIVATE_RESP */
+			c_subcmd = "FTD Data Deactivate Response";
+			break;
+		case 0x0C: /* COMM_PWR_OFF_CONFIRM_REQ */
+			c_subcmd = "Power Off Confirm Request";
+			break;
+		case 0x0D: /* COMM_PWR_OFF_CONFIRM_RESP */
+			c_subcmd = "Power Off Confirm Response";
+			break;
+		case 0x0E: /* COMM_NVD_SET_DEFAULT_REQ */
+			c_subcmd = "NVD Set Default Request";
+			break;
+		case 0x0F: /* COMM_NVD_SET_DEFAULT_RESP */
+			c_subcmd = "NVD Set Default Response";
+			break;
+		case 0x10: /* COMM_NVD_VERSION_CHK_REQ */
+			c_subcmd = "NVD Version Check Request";
+			break;
+		case 0x11: /* COMM_NVD_VERSION_CHK_RESP */
+			c_subcmd = "NVD Version Check Response";
+			break;
+		case 0x12: /* COMM_ISI_VERSION_GET_REQ */
+			c_subcmd = "ISI Version Get Request";
+			break;
+		case 0x13: /* COMM_ISI_VERSION_GET_RESP */
+			c_subcmd = "ISI Version Get Response";
+			proto_tree_add_item(tree, hf_isi_version_major, tvb, 2, 1, FALSE);
+			proto_tree_add_item(tree, hf_isi_version_minor, tvb, 3, 1, FALSE);
+			break;
+		case 0x14: /* COMM_ISA_ENTITY_NOT_REACHABLE_RESP */
+			c_subcmd = "ISA Entity Not Reachable Response";
+			break;
+		case 0x15: /* COMM_RF_CONTROL_REQ */
+			c_subcmd = "RF Control Request";
+			break;
+		case 0x16: /* COMM_RF_CONTROL_RESP */
+			c_subcmd = "RF Control Response";
+			break;
+		case 0x17: /* COMM_SERVICE_NOT_AUTHENTICATED_RESP */
+			c_subcmd = "Service Not Authenticated Response";
+			break;
+		default:
+			//expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN, "unsupported packet");
+			break;
+	}
+
+	col_add_fstr(pinfo->cinfo, COL_INFO, "%s Common Message: %s", resource, c_subcmd);
+}
+

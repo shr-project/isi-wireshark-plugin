@@ -320,6 +320,9 @@ static void dissect_isi_network(tvbuff_t *tvb, packet_info *pinfo, proto_item *i
 				col_set_str(pinfo->cinfo, COL_INFO, "Network Cell Info Indication");
 				dissect_isi_network_cell_info_ind(tvb, pinfo, item, tree);
 				break;
+			case 0xF0:
+				dissect_isi_common("Network", tvb, pinfo, tree);
+				break;
 			default:
 				col_set_str(pinfo->cinfo, COL_INFO, "unknown Network packet");
 				expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN, "unsupported packet");
