@@ -13,7 +13,8 @@ OBJECTS:=src/packet-isi.o \
 	src/isi-mtc.o \
 	src/isi-nameservice.o \
 	src/isi-radiosettings.o \
-	src/isi-phoneinfo.o
+	src/isi-phoneinfo.o \
+	src/isi-call.o
 
 all: isi.so
 
