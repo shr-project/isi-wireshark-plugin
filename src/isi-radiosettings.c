@@ -70,6 +70,11 @@ static void dissect_isi_radiosettings(tvbuff_t *tvb, packet_info *pinfo, proto_i
 		cmd = tvb_get_guint8(tvb, 0);
 
 		switch (cmd) {
+
+			case 0xF0: /* COMMON_MESSAGE */
+				dissect_isi_common("Radio Settings", tvb, pinfo, tree);
+				break;
+
 			default:
 				col_set_str(pinfo->cinfo, COL_INFO, "unknown Radio Settings packet");
 				expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN, "unsupported packet");
