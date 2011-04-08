@@ -11,7 +11,8 @@ OBJECTS:=src/packet-isi.o \
 	src/isi-gss.o \
 	src/isi-sms.o \
 	src/isi-mtc.o \
-	src/isi-nameservice.o
+	src/isi-nameservice.o \
+	src/isi-radiosettings.o 
 
 all: isi.so
 
