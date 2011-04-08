@@ -186,36 +186,36 @@ static void dissect_isi_mtc(tvbuff_t *tvb, packet_info *pinfo, proto_item *isitr
 		switch (cmd) {
 			case 0x01: /* MTC_STATE_REQ */
 				proto_tree_add_item(tree, hf_isi_mtc_target_state, tvb, 1, 1, FALSE);
-				col_set_str(pinfo->cinfo, COL_INFO, "MTC State");
+				col_set_str(pinfo->cinfo, COL_INFO, "MTC State Request");
 				break;
 			case 0x64: /* MTC_STATE_RESP */
 				proto_tree_add_item(tree, hf_isi_mtc_status, tvb, 1, 1, FALSE);
-				col_set_str(pinfo->cinfo, COL_INFO, "MTC State");
+				col_set_str(pinfo->cinfo, COL_INFO, "MTC State Response");
 				break;
 			case 0x02: /* MTC_STATE_QUERY_REQ */
-				col_set_str(pinfo->cinfo, COL_INFO, "MTC State Query");
+				col_set_str(pinfo->cinfo, COL_INFO, "MTC State Query Request");
 				break;
 			case 0x65: /* MTC_STATE_QUERY_RESP */
 				proto_tree_add_item(tree, hf_isi_mtc_current_state, tvb, 1, 1, FALSE);
 				proto_tree_add_item(tree, hf_isi_mtc_target_state, tvb, 2, 1, FALSE);
-				col_set_str(pinfo->cinfo, COL_INFO, "MTC State Query");
+				col_set_str(pinfo->cinfo, COL_INFO, "MTC State Query Response");
 				break;
 			case 0x03: /* MTC_POWER_OFF_REQ */
-				col_set_str(pinfo->cinfo, COL_INFO, "MTC Power Off");
+				col_set_str(pinfo->cinfo, COL_INFO, "MTC Power Off Request");
 				break;
 			case 0x66: /* MTC_POWER_OFF_RESP */
 				proto_tree_add_item(tree, hf_isi_mtc_status, tvb, 1, 1, FALSE);
-				col_set_str(pinfo->cinfo, COL_INFO, "MTC Power Off");
+				col_set_str(pinfo->cinfo, COL_INFO, "MTC Power Off Response");
 				break;
 			case 0x0B: /* MTC_STARTUP_SYNQ_REQ */
-				col_set_str(pinfo->cinfo, COL_INFO, "MTC Startup Synq");
+				col_set_str(pinfo->cinfo, COL_INFO, "MTC Startup Synq Request");
 				break;
 			case 0x6E: /* MTC_STARTUP_SYNQ_RESP */
 				proto_tree_add_item(tree, hf_isi_mtc_status, tvb, 1, 1, FALSE);
-				col_set_str(pinfo->cinfo, COL_INFO, "MTC Startup Synq");
+				col_set_str(pinfo->cinfo, COL_INFO, "MTC Startup Synq Response");
 				break;
 			case 0x12: /* MTC_SHUTDOWN_SYNC_REQ */
-				col_set_str(pinfo->cinfo, COL_INFO, "MTC Shutdown Sync");
+				col_set_str(pinfo->cinfo, COL_INFO, "MTC Shutdown Sync Request");
 				break;
 			case 0xC0: /* MTC_STATE_INFO_IND */
 				proto_tree_add_item(tree, hf_isi_mtc_current_state, tvb, 1, 1, FALSE);
