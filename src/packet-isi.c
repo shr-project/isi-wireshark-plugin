@@ -328,6 +328,7 @@ static guint32 ett_isi = -1;
 guint32 ett_isi_msg = -1;
 guint32 ett_isi_network_gsm_band_info = -1;
 guint32 ett_isi_nameservice_entry = -1;
+guint32 ett_isi_info = -1;
 
 #ifdef ISI_USB
 /* Experimental approach based upon the one used for PPP*/
@@ -419,6 +420,7 @@ void proto_register_isi(void) {
 		&ett_isi_msg,
 		&ett_isi_network_gsm_band_info,
 		&ett_isi_nameservice_entry,
+		&ett_isi_info,
 	};
 
 	proto_isi = proto_register_protocol("Intelligent Service Interface", "ISI", "isi");
