@@ -322,6 +322,8 @@ static guint32 hf_isi_id   = -1;
 static guint32 hf_isi_comcmd = -1;
 static guint32 hf_isi_version_major = -1;
 static guint32 hf_isi_version_minor = -1;
+static guint32 hf_isi_sub_pkgcount = -1;
+static guint32 hf_isi_sub_length = -1;
 
 /* Subtree handles: set by register_subtree_array */
 static guint32 ett_isi = -1;
@@ -384,35 +386,29 @@ void proto_register_isi(void) {
 	 */
 	static hf_register_info hf[] = {
 		{ &hf_isi_rdev,
-		  { "Receiver Device", "isi.rdev", FT_UINT8, BASE_HEX,
-		    VALS(hf_isi_device), 0x0, "Receiver Device ID", HFILL }},
+		  { "Receiver Device", "isi.rdev", FT_UINT8, BASE_HEX, VALS(hf_isi_device), 0x0, "Receiver Device ID", HFILL }},
 		{ &hf_isi_sdev,
-		  { "Sender Device", "isi.sdev", FT_UINT8, BASE_HEX,
-		    VALS(hf_isi_device), 0x0, "Sender Device ID", HFILL }},
+		  { "Sender Device", "isi.sdev", FT_UINT8, BASE_HEX, VALS(hf_isi_device), 0x0, "Sender Device ID", HFILL }},
 		{ &hf_isi_res,
-		  { "Resource", "isi.res", FT_UINT8, BASE_HEX,
-		    VALS(hf_isi_resource), 0x0, "Resource ID", HFILL }},
+		  { "Resource", "isi.res", FT_UINT8, BASE_HEX, VALS(hf_isi_resource), 0x0, "Resource ID", HFILL }},
 		{ &hf_isi_len,
-		  { "Length", "isi.len", FT_UINT16, BASE_DEC,
-		    NULL, 0x0, "Length", HFILL }},
+		  { "Length", "isi.len", FT_UINT16, BASE_DEC, NULL, 0x0, "Length", HFILL }},
 		{ &hf_isi_robj,
-		  { "Receiver Object", "isi.robj", FT_UINT8, BASE_HEX,
-		    NULL, 0x0, "Receiver Object", HFILL }},
+		  { "Receiver Object", "isi.robj", FT_UINT8, BASE_HEX, NULL, 0x0, "Receiver Object", HFILL }},
 		{ &hf_isi_sobj,
-		  { "Sender Object", "isi.sobj", FT_UINT8, BASE_HEX,
-		    NULL, 0x0, "Sender Object", HFILL }},
+		  { "Sender Object", "isi.sobj", FT_UINT8, BASE_HEX, NULL, 0x0, "Sender Object", HFILL }},
 		{ &hf_isi_id,
-		  { "Packet ID", "isi.id", FT_UINT8, BASE_DEC,
-		    NULL, 0x0, "Packet ID", HFILL }},
+		  { "Packet ID", "isi.id", FT_UINT8, BASE_DEC, NULL, 0x0, "Packet ID", HFILL }},
 		{ &hf_isi_comcmd,
-		  { "Sub Command", "isi.comcmd", FT_UINT8, BASE_HEX,
-		    isi_common_cmd, 0x0, "Common Command", HFILL }},
+		  { "Sub Command", "isi.comcmd", FT_UINT8, BASE_HEX, isi_common_cmd, 0x0, "Common Command", HFILL }},
 		{ &hf_isi_version_major,
-		  { "ISI Version Major", "isi.version_major", FT_UINT8, BASE_HEX,
-		    NULL, 0x0, "ISI Version Major", HFILL }},
+		  { "ISI Version Major", "isi.version_major", FT_UINT8, BASE_HEX, NULL, 0x0, "ISI Version Major", HFILL }},
 		{ &hf_isi_version_minor,
-		  { "ISI Version Minor", "isi.version_minor", FT_UINT8, BASE_HEX,
-		    NULL, 0x0, "ISI Version Minor", HFILL }},
+		  { "ISI Version Minor", "isi.version_minor", FT_UINT8, BASE_HEX, NULL, 0x0, "ISI Version Minor", HFILL }},
+		{ &hf_isi_sub_pkgcount,
+		  { "Subpackage Count", "isi.sub.pkgcount", FT_UINT8, BASE_DEC, NULL, 0x0, "Subpackage Count", HFILL }},
+		{ &hf_isi_sub_length,
+		  { "Subpacket Length", "isi.sub.length", FT_UINT8, BASE_DEC, NULL, 0x0, "Subpacket Length", HFILL }},
     };
 
 	static gint *ett[] = {
@@ -447,6 +443,36 @@ void proto_register_isi(void) {
 	proto_register_isi_call();
 	proto_register_isi_light();
 }
+
+void dissect_isi_subpacket(guint32 hf_sub_type, guint8 offset, tvbuff_t *tvb, 
+		packet_info *pinfo, proto_item *item, proto_tree *tree, 
+		void (*detail_cb)(guint8, tvbuff_t*, packet_info*, proto_item*, proto_tree*)) {
+	tvbuff_t *content = NULL;
+	int i;
+	guint8 pkgcount = tvb_get_guint8(tvb, offset - 1);
+	proto_tree_add_item(tree, hf_isi_sub_pkgcount, tvb, offset - 1, 1, FALSE);
+
+	for(i=0; i<pkgcount; i++) {
+		guint8 sptype = tvb_get_guint8(tvb, offset+0x00);
+		guint8 splen = tvb_get_guint8(tvb, offset+0x01);
+
+		proto_item *subitem = proto_tree_add_text(tree, tvb, offset, splen, "Subpacket #%d", i+1);
+		proto_tree *subtree = proto_item_add_subtree(subitem, ett_isi_msg);
+
+		proto_tree_add_item(subtree, hf_sub_type, tvb, offset+0x00, 1, FALSE);
+		proto_tree_add_item(subtree, hf_isi_sub_length, tvb, offset+0x01, 1, FALSE);
+
+		content = tvb_new_subset(tvb, offset, splen, splen);
+
+		if  (detail_cb) {
+			detail_cb(sptype, content, pinfo, subitem, subtree);
+		}
+
+		offset += splen;
+	}
+}
+
+
 
 /* The dissector itself */
 static void dissect_isi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {

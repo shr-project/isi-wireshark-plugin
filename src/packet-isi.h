@@ -10,5 +10,6 @@ extern guint32 ett_isi_network_gsm_band_info;
 extern guint32 ett_isi_info;
 
 void dissect_isi_common(const char *resource, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+void dissect_isi_subpacket(guint32 hf_sub_type, guint8 offset, tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_tree *tree, void (*detail_cb)(guint8, tvbuff_t*, packet_info*, proto_item*, proto_tree*));
 
 #endif
