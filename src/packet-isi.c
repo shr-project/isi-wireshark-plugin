@@ -371,6 +371,7 @@ void proto_reg_handoff_isi(void) {
 		proto_reg_handoff_isi_call();
 		proto_reg_handoff_isi_light();
 		proto_reg_handoff_isi_commgr();
+		proto_reg_handoff_isi_selftest();
 
 #ifdef ISI_USB
 		heur_dissector_add("usb.bulk", dissect_usb_isi, proto_isi);
@@ -444,6 +445,7 @@ void proto_register_isi(void) {
 	proto_register_isi_call();
 	proto_register_isi_light();
 	proto_register_isi_commgr();
+	proto_register_isi_selftest();
 }
 
 void dissect_isi_subpacket(guint32 hf_sub_type, guint8 offset, tvbuff_t *tvb, 
