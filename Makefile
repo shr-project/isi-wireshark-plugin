@@ -15,7 +15,8 @@ OBJECTS:=src/packet-isi.o \
 	src/isi-radiosettings.o \
 	src/isi-phoneinfo.o \
 	src/isi-call.o \
-	src/isi-light.o
+	src/isi-light.o \
+	src/isi-commgr.o \
 
 all: isi.so
 

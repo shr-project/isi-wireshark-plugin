@@ -67,7 +67,7 @@ static const value_string hf_isi_resource[] = {
 	{0x0D, "Blackberry Email"},
 	{0x0E, "Plato Panel"},
 	{0x0F, "Echo"},
-	{0x10, "Indication"},
+	{0x10, "ComMgr"},
 	{0x11, "Java"},
 	{0x12, "Local Connectivity"},
 	{0x13, "Calendar"},
@@ -314,7 +314,7 @@ static const value_string isi_common_cmd[] = {
 
 static guint32 hf_isi_rdev = -1;
 static guint32 hf_isi_sdev = -1;
-static guint32 hf_isi_res  = -1;
+guint32 hf_isi_res  = -1;
 static guint32 hf_isi_len  = -1;
 static guint32 hf_isi_robj = -1;
 static guint32 hf_isi_sobj = -1;
@@ -370,6 +370,7 @@ void proto_reg_handoff_isi(void) {
 		proto_reg_handoff_isi_phoneinfo();
 		proto_reg_handoff_isi_call();
 		proto_reg_handoff_isi_light();
+		proto_reg_handoff_isi_commgr();
 
 #ifdef ISI_USB
 		heur_dissector_add("usb.bulk", dissect_usb_isi, proto_isi);
@@ -442,6 +443,7 @@ void proto_register_isi(void) {
 	proto_register_isi_phoneinfo();
 	proto_register_isi_call();
 	proto_register_isi_light();
+	proto_register_isi_commgr();
 }
 
 void dissect_isi_subpacket(guint32 hf_sub_type, guint8 offset, tvbuff_t *tvb, 
