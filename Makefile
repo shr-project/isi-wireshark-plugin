@@ -17,6 +17,7 @@ OBJECTS:=src/packet-isi.o \
 	src/isi-call.o \
 	src/isi-light.o \
 	src/isi-commgr.o \
+	src/isi-gpds.o \
 	src/isi-selftest.o
 
 all: isi.so
