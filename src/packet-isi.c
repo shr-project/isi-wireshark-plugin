@@ -25,10 +25,6 @@
 #include <epan/packet.h>
 
 #include "packet-isi.h"
-#include "isi-network.h"
-#include "isi-sim.h"
-#include "isi-simauth.h"
-#include "isi-gps.h"
 
 #define ISI_LTYPE 0xF5
 
