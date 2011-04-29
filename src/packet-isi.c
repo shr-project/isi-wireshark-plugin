@@ -372,6 +372,7 @@ void proto_reg_handoff_isi(void) {
 		proto_reg_handoff_isi_light();
 		proto_reg_handoff_isi_commgr();
 		proto_reg_handoff_isi_gpds();
+		proto_reg_handoff_isi_pipe();
 		proto_reg_handoff_isi_selftest();
 
 #ifdef ISI_USB
@@ -447,6 +448,7 @@ void proto_register_isi(void) {
 	proto_register_isi_light();
 	proto_register_isi_commgr();
 	proto_register_isi_gpds();
+	proto_register_isi_pipe();
 	proto_register_isi_selftest();
 }
 
